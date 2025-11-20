@@ -1,14 +1,29 @@
 #include "mbed.h"
 
-DigitalOut led1(LED1);
+Serial pc(USBTX, USBRX);
 
-int main()
-{
-    while(1)
-    {
-        led1 = 0;
-        wait(1);
-        led1 = 1;
-        wait(1);
+int main() {
+
+    char buffer[100];
+    int index = 0;
+
+    while(1) {
+        if(pc.readable()) {
+            char caracter = pc.getc();
+
+            if (caracter == '\r' || caracter == '\n') {
+                if (index > 0) {
+                    buffer[index] = '\0';
+                    pc.printf("\r\nEco: %s\r\n", buffer);
+                    index = 0;
+                }
+                pc.printf("> ");
+            }
+
+            else if (index < 99) {
+                buffer[index++] = caracter;
+                pc.putc(caracter);
+            }
+        }
     }
 }
